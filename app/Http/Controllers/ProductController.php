@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Services\ProductServices;
-use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Helpers\ApiResponse;
+use App\Http\Requests\ProductCreateRequest;
+use App\Http\Resources\ProductResource;
+use App\Http\Services\ProductService;
 
 class ProductController extends Controller
 {
-    public function createProduct(ProductServices $productServices, Request $request){
-
-        $productServices->createProduct($request);
-
-
-        return response()->json([
-            "message" => "Product created"
-        ]);
-
+    private ProductService $productService;
+    public function __construct(
+        ProductService $productService
+    ){
+        $this->productService = $productService;
     }
+
+    public function createProduct(ProductCreateRequest $request){
+
+        $product = $this->productService->createProduct($request->validated());
+
+        return ApiResponse::success(
+            'Product created successfully',
+            '200',
+            new ProductResource($product)
+        );
+    }
+
+
 }
