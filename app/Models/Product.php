@@ -11,7 +11,14 @@ use Ramsey\Uuid\Type\Integer;
 class Product extends Model
 {
     use HasFactory;
+    /**
+     * Indicates whether attributes are snake_cased on serialization.
+     *
+     * @var bool
+     */
+    public static $snakeAttributes = false;
     public $table = 'products';
+
 
 //     public String $name;
 //     public String $composition;

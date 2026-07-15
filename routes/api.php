@@ -22,3 +22,8 @@ Route::middleware('auth:sanctum')
 
 
 Route::post('product/create', [ProductController::class, 'createProduct']);
+Route::patch('product/update/{id}', [ProductController::class, 'updatePartialProduct']);
+Route::put('product/update/{id}', [ProductController::class, 'updateProduct']);
+Route::get('product', [ProductController::class, 'getAllProducts']);
+Route::get('product/details/{id}', [ProductController::class, 'getProduct']);
+//Route::post('product/publish/{id}',[ProductController::class, 'publishProduct']);

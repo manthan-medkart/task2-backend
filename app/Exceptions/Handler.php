@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use App\Helpers\ApiResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -37,7 +38,7 @@ class Handler extends ExceptionHandler
             return ApiResponse::error(
                 'Validation Error',
                 422,
-                $e->getMessage(),
+                $e->errors(),
             );
         }
         if($e instanceof AuthorizationException){
@@ -53,7 +54,13 @@ class Handler extends ExceptionHandler
                 '401',
                 $e->getMessage(),
             );
-
+        }
+        if($e instanceof ModelNotFoundException){
+            return ApiResponse::error(
+                'Model Not found',
+                '404',
+                $e->getMessage(),
+            );
         }
         return ApiResponse::error(
             'Internal Server Error',

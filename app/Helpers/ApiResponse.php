@@ -14,10 +14,10 @@ class ApiResponse
     ):JsonResponse
     {
         return response()->json([
-            'status_code' => $statusCode,
+            'statusCode' => $statusCode,
             'message' => $message,
             'data' => $data,
-        ]);
+        ], $statusCode);
     }
     public static function error(
         string $message,
@@ -26,10 +26,10 @@ class ApiResponse
     ): JsonResponse
     {
         return response()->json([
-            'status_code' => $statusCode,
+            'statusCode' => $statusCode,
             'message' => $message,
             'error' => $error,
-        ]);
+        ], $statusCode);
     }
 
 }
