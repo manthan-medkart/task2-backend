@@ -24,7 +24,7 @@ class ProductController extends Controller
 
         return ApiResponse::success(
             'Product created successfully',
-            '200',
+            200,
             new ProductResource($product)
         );
     }
@@ -34,7 +34,7 @@ class ProductController extends Controller
         $product = $this->productService->updatePartialProduct($id, $request->validated());
         return ApiResponse::success(
             'Product updated successfully',
-            '200',
+            200,
             new ProductResource($product)
         );
     }
@@ -43,7 +43,7 @@ class ProductController extends Controller
         $product = $this->productService->updateProduct($id, $request->validated());
         return ApiResponse::success(
             'Product updated successfully',
-            '200',
+            200,
             new ProductResource($product)
         );
     }
@@ -57,7 +57,7 @@ class ProductController extends Controller
 
         return ApiResponse::success(
             'Products retrieved successfully',
-            '200',
+            200,
             new ProductResource($products)
         );
     }
@@ -68,7 +68,7 @@ class ProductController extends Controller
 
         return ApiResponse::success(
             'Product retrieved successfully',
-            '200',
+            200,
             new ProductResource($product)
         );
     }

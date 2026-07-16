@@ -22,6 +22,10 @@ class ProductUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'product_code' => [
+                'required',
+                'integer'
+            ],
             'name' => [
                 'required',
                 'string',
@@ -36,19 +40,19 @@ class ProductUpdateRequest extends FormRequest
                 'required',
                 'numeric',
             ],
-            'salesRate' => [
+            'sale_rate' => [
                 'required',
                 'numeric',
             ],
-            'totalStrip' => [
+            'total_strip' => [
                 'required',
                 'numeric',
             ],
-            'medicinePerStrip' => [
+            'medicine_per_strip' => [
                 'required',
                 'numeric',
             ],
-            'imageUrl' => [
+            'image_url' => [
                 'required',
                 'string',
             ]

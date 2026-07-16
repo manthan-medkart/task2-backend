@@ -18,29 +18,34 @@ class ProductResource extends JsonResource
     {
         if($this->resource instanceof Collection)
         {
+            $products = [];
             foreach($this->resource as $product ) {
                 $products[] = [
                     'id' => $product->id,
+                    'productCode' => (int) $product->product_code,
                     'name' => $product->name,
                     'composition' => $product->composition,
                     'mrp' => $product->mrp,
-                    'salesRate' => $product->sales_rate,
+                    'salesRate' => $product->sale_rate,
                     'totalStrip' => $product->total_strip,
                     'medicinePerStrip' => $product->medicine_per_strip,
-                    'imageUrl' => $product->image_url
+                    'imageUrl' => $product->image_url,
+                    'availability' => $product->availability
                 ];
             }
             return $products;
         }
         else return [
-            'id' => $this->id,
+            'id' => (int) $this->id,
+            'productCode' => (int) $this->product_code,
             'name' => $this->name,
             'composition' => $this->composition,
             'mrp' => $this->mrp,
-            'salesRate' => $this->sales_rate,
+            'salesRate' => $this->sale_rate,
             'totalStrip' => $this->total_strip,
             'medicinePerStrip' => $this->medicine_per_strip,
-            'imageUrl' => $this->image_url
+            'imageUrl' => $this->image_url,
+            'availability' => $this->availability
         ];
 
 

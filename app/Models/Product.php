@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Type\Decimal;
 use Ramsey\Uuid\Type\Integer;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Product extends Model
 {
     use HasFactory;
@@ -30,14 +32,23 @@ class Product extends Model
 
 
     protected $fillable = [
+        'product_code',
         'name',
         'composition',
         'mrp',
-        'sales_rate',
+        'sale_rate',
         'total_strip',
         'medicine_per_strip',
         'image_url'
     ];
 
+    public function stockLogs(): HasMany
+    {
+        return $this->hasMany(StockLog::class, 'product_code', 'product_code');
+    }
 
+    public function getAvailabilityAttribute(): string
+    {
+        return $this->total_strip > 0 ? 'available' : 'unavailable';
+    }
 }

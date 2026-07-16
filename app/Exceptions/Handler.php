@@ -44,27 +44,34 @@ class Handler extends ExceptionHandler
         if($e instanceof AuthorizationException){
             return ApiResponse::error(
                 'Authorization Error',
-                '403',
+                403,
                 $e->getMessage(),
             );
         }
         if($e instanceof AuthenticationException){
             return ApiResponse::error(
                 'Authentication Error',
-                '401',
+                401,
                 $e->getMessage(),
             );
         }
         if($e instanceof ModelNotFoundException){
             return ApiResponse::error(
                 'Model Not found',
-                '404',
+                404,
+                $e->getMessage(),
+            );
+        }
+        if($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException){
+            return ApiResponse::error(
+                'Route Not Found',
+                404,
                 $e->getMessage(),
             );
         }
         return ApiResponse::error(
             'Internal Server Error',
-            '500',
+            500,
             $e->getMessage(),
         );
     }
