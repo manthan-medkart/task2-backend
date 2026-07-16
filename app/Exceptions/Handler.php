@@ -8,6 +8,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -57,12 +58,12 @@ class Handler extends ExceptionHandler
         }
         if($e instanceof ModelNotFoundException){
             return ApiResponse::error(
-                'Model Not found',
+                $e->getMessage(),
                 404,
                 $e->getMessage(),
             );
         }
-        if($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException){
+        if($e instanceof NotFoundHttpException){
             return ApiResponse::error(
                 'Route Not Found',
                 404,

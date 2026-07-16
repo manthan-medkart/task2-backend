@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Product;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -10,26 +11,26 @@ use Illuminate\Support\Facades\Http;
 
 class ProductService
 {
-    public function createProduct(array $data) : Product
+    public function createProduct(array $data)
     {
-        return DB::transaction(function () use ($data) {
-            return Product::create($data);
+        DB::transaction(function () use ($data) {
+            Product::create($data);
         });
     }
 
-    public function updatePartialProduct(int $id, array $data) : Product
+    public function updatePartialProduct(int $productCode, array $data) : Product
     {
-        return DB::transaction(function () use ($id, $data) {
-            $product = $this->productExists($id);
+        return DB::transaction(function () use ($productCode, $data) {
+            $product = $this->productExists($productCode);
             $product->update($data);
             return $product;
         });
     }
 
-    public function updateProduct(int $id, array $data) : Product
+    public function updateProduct(int $productCode, array $data) : Product
     {
-        return DB::transaction(function () use ($id, $data) {
-            $product = $this->productExists($id);
+        return DB::transaction(function () use ($productCode, $data) {
+            $product = $this->productExists($productCode);
             $product->update($data);
             return $product;
         });
@@ -42,30 +43,32 @@ class ProductService
         });
     }
 
-    public function getProduct(int $id) : Product
+    public function getProduct(int $product_code) : Product
     {
-        return DB::transaction(function () use ($id) {
-            return $this->productExists($id);
+        return DB::transaction(function () use ($product_code) {
+             $this->productExists($product_code);
         });
 
     }
-    public function productExists(int $id) : Product
+    public function productExists(int $productCode) : Product
     {
-        $product = Product::find($id);
+        $product = Product::where('product_code', $productCode)->first();
         if(!$product){
             throw new ModelNotFoundException('Product not found');
         }
         return $product;
     }
 
-//    public function publishProduct(int $id, mixed $validated)
-//    {
-//        try{
-//            Http::post('http:localhost:8080/api/product/publish/{id}', $product)
-//
-//        }catch (Exception $exception){
-//
-//        }
-//
-//    }
+    public function publishProduct(array $product)
+    {
+        $productCode = $product['product_code'];
+        try{
+            Http::post("http://localhost:8080/api/products/publish/{$productCode}", $product);
+            return $product;
+
+        }catch (Exception $exception) {
+            echo $exception->getMessage();
+        }
+        return null;
+    }
 }

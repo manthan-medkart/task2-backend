@@ -37,7 +37,7 @@ class ProductResource extends JsonResource
         }
         else return [
             'id' => (int) $this->id,
-            'productCode' => (int) $this->product_code,
+            'productCode' => $this->product_code,
             'name' => $this->name,
             'composition' => $this->composition,
             'mrp' => $this->mrp,

@@ -22,10 +22,6 @@ class ProductUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_code' => [
-                'required',
-                'integer'
-            ],
             'name' => [
                 'required',
                 'string',
@@ -40,7 +36,7 @@ class ProductUpdateRequest extends FormRequest
                 'required',
                 'numeric',
             ],
-            'sale_rate' => [
+            'sales_rate' => [
                 'required',
                 'numeric',
             ],

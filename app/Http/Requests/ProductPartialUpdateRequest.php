@@ -22,10 +22,6 @@ class ProductPartialUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_code' => [
-                'required',
-                'integer'
-            ],
             'name' => [
                 'string',
                 'max:255',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ApiResponse;
 use App\Http\Requests\ProductCreateRequest;
 use App\Http\Requests\ProductPartialUpdateRequest;
+use App\Http\Requests\ProductPublishRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Services\ProductService;
@@ -20,12 +21,12 @@ class ProductController extends Controller
 
     public function createProduct(ProductCreateRequest $request){
 
-        $product = $this->productService->createProduct($request->validated());
+        $this->productService->createProduct($request->validated());
 
         return ApiResponse::success(
             'Product created successfully',
             200,
-            new ProductResource($product)
+            null
         );
     }
 
@@ -73,11 +74,11 @@ class ProductController extends Controller
         );
     }
 
-//    public function publishProduct(ProductUpdateRequest $request, int $id)
-//    {
-//        $this->productService->publishProduct($id, $request->validated());
-//
-//    }
+    public function publishProduct(ProductPublishRequest $request)
+    {
+        $this->productService->publishProduct($request->validated());
+
+    }
 
 
 }

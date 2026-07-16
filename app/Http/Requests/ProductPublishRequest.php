@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\UniqueProductName;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProductCreateRequest extends FormRequest
+class ProductPublishRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +22,15 @@ class ProductCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'product_code' => [
+                'required',
+                'integer',
+            ],
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                'min:3',
-                new UniqueProductName(),
+                'min:3'
             ],
             'composition' => [
                 'required',
@@ -54,7 +56,6 @@ class ProductCreateRequest extends FormRequest
                 'required',
                 'string',
             ]
-
         ];
     }
 }

@@ -32,11 +32,10 @@ class Product extends Model
 
 
     protected $fillable = [
-        'product_code',
         'name',
         'composition',
         'mrp',
-        'sale_rate',
+        'sales_rate',
         'total_strip',
         'medicine_per_strip',
         'image_url'
