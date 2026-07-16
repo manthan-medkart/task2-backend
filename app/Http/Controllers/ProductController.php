@@ -78,6 +78,11 @@ class ProductController extends Controller
     {
         $this->productService->publishProduct($request->validated());
 
+        return response()->json([
+            'message' => 'Product published successfully',
+            'statusCode' => 200
+        ]);
+
     }
 
 

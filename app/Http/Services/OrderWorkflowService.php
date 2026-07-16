@@ -46,7 +46,7 @@ class OrderWorkflowService
                     throw new ModelNotFoundException("Product with code {$itemData['product_code']} not found.");
                 }
 
-                $itemPrice = $product->sale_rate;
+                $itemPrice = $product->sales_rate;
                 $itemTotal = $itemPrice * $itemData['quantity'];
                 $totalAmount += $itemTotal;
 

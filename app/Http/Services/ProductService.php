@@ -46,9 +46,9 @@ class ProductService
     public function getProduct(int $product_code) : Product
     {
         return DB::transaction(function () use ($product_code) {
-             $this->productExists($product_code);
-        });
+             return ($this->productExists($product_code));
 
+        });
     }
     public function productExists(int $productCode) : Product
     {

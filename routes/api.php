@@ -34,6 +34,6 @@ Route::post('product/{productCode}/stock/update', [StockController::class, 'upda
 Route::get('product/{productCode}/stock/history', [StockController::class, 'getStockHistory'])->whereNumber('productCode');
 
 Route::post('sales-order/create', [OrderWorkflowController::class, 'createSalesOrder']);
-Route::post('sales-order/{id}/invoice', [OrderWorkflowController::class, 'generateInvoice'])->whereNumber('id');
-Route::post('sales-order/{id}/delivery', [OrderWorkflowController::class, 'processDelivery'])->whereNumber('id');
-Route::get('sales-order/{id}/details', [OrderWorkflowController::class, 'getSalesOrderDetails'])->whereNumber('id');
+Route::post('sales-order/{product_code}/invoice', [OrderWorkflowController::class, 'generateInvoice'])->whereNumber('product_code');
+Route::post('sales-order/{product_code}/delivery', [OrderWorkflowController::class, 'processDelivery'])->whereNumber('product_code');
+Route::get('sales-order/{product_code}/details', [OrderWorkflowController::class, 'getSalesOrderDetails'])->whereNumber('product_code');
