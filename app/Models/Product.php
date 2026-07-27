@@ -22,29 +22,15 @@ class Product extends Model
     public $table = 'products';
 
 
-//     public String $name;
-//     public String $composition;
-//     public Decimal $mrp;
-//     public Decimal $sales_rate;
-//     public Integer $total_strip;
-//     public Integer $medicine_per_strip;
-//     public $image_url;
-
-
     protected $fillable = [
         'name',
         'composition',
         'mrp',
-        'sales_rate',
         'total_strip',
+        'sales_rate',
         'medicine_per_strip',
         'image_url'
     ];
-
-    public function stockLogs(): HasMany
-    {
-        return $this->hasMany(StockLog::class, 'product_code', 'product_code');
-    }
 
     public function getAvailabilityAttribute(): string
     {

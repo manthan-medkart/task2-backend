@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateSalesOrderRequest extends FormRequest
+class SalesOrderCreateRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +16,7 @@ class CreateSalesOrderRequest extends FormRequest
         return [
             'ecommerce_order_id' => [
                 'required',
-                'string',
+                'integer',
                 'unique:sales_orders,ecommerce_order_id',
             ],
             'customer_name' => [

@@ -19,9 +19,14 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
+
+//======================================================================================================================
+//================  CREATE PRODUCT  ======================================================================================================
+//======================================================================================================================
+
     public function createProduct(ProductCreateRequest $request){
 
-        $this->productService->createProduct($request->validated());
+         $this->productService->createProduct($request->validated());
 
         return ApiResponse::success(
             'Product created successfully',
@@ -29,6 +34,11 @@ class ProductController extends Controller
             null
         );
     }
+
+
+//======================================================================================================================
+//================  UPDATE PARTIAL PRODUCT  ======================================================================================================
+//======================================================================================================================
 
     public function updatePartialProduct(int $id, ProductPartialUpdateRequest $request)
     {
@@ -40,6 +50,11 @@ class ProductController extends Controller
         );
     }
 
+
+//======================================================================================================================
+//================  UPDATE PRODUCT  ======================================================================================================
+//======================================================================================================================
+
     public function updateProduct(int $id, ProductUpdateRequest $request){
         $product = $this->productService->updateProduct($id, $request->validated());
         return ApiResponse::success(
@@ -48,6 +63,11 @@ class ProductController extends Controller
             new ProductResource($product)
         );
     }
+
+
+//======================================================================================================================
+//================  GET ALL PRODUCTS  ======================================================================================================
+//======================================================================================================================
 
     public function getAllProducts()
     {
@@ -63,6 +83,11 @@ class ProductController extends Controller
         );
     }
 
+
+//======================================================================================================================
+//================  GET PRODUCT BY ID  ======================================================================================================
+//======================================================================================================================
+
     public function getProduct(int $id)
     {
         $product = $this->productService->getProduct($id);
@@ -74,14 +99,30 @@ class ProductController extends Controller
         );
     }
 
+//======================================================================================================================
+//================  PUBLISH PRODUCT  ======================================================================================================
+//======================================================================================================================
+
+
     public function publishProduct(ProductPublishRequest $request)
     {
-        $this->productService->publishProduct($request->validated());
+        try{
+            $this->productService->publishProduct($request->validated());
 
-        return response()->json([
-            'message' => 'Product published successfully',
-            'statusCode' => 200
-        ]);
+            return ApiResponse::success(
+                'Product published successfully',
+                200,
+                null
+            );
+        }
+        catch (\Exception $exception){
+            return ApiResponse::error(
+                'Product published unsuccessfully',
+                400,
+                $exception->getMessage()
+            );
+        }
+
 
     }
 

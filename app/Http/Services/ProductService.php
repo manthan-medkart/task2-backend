@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\Product;
+use App\Models\Stock;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
@@ -14,7 +15,14 @@ class ProductService
     public function createProduct(array $data)
     {
         DB::transaction(function () use ($data) {
-            Product::create($data);
+            $product = Product::create($data);
+            $product->refresh();
+
+            //This will create Stock of new product
+            Stock::create([
+                'product_code' => $product->product_code,
+                'quantity' => $data['total_strip'],
+            ]);
         });
     }
 

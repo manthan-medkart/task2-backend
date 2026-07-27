@@ -5,28 +5,16 @@ namespace App\Http\Services;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
-use App\Models\SalesInvoice;
-use App\Models\Delivery;
 use App\Http\Services\StockService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use PhpParser\Node\Expr\BinaryOp\BooleanAnd;
 
 class OrderWorkflowService
 {
-    private StockService $stockService;
-
-    public function __construct(StockService $stockService)
-    {
-        $this->stockService = $stockService;
-    }
-
-    /**
-     * Create a new Sales Order.
-     *
-     * @param array $data
-     * @return SalesOrder
-     */
     public function createSalesOrder(array $data): SalesOrder
     {
         return DB::transaction(function () use ($data) {
@@ -35,141 +23,59 @@ class OrderWorkflowService
                 'customer_name' => $data['customer_name'],
                 'customer_email' => $data['customer_email'],
                 'total_amount' => 0,
-                'status' => 'pending'
+                'status' => 'PENDING'
             ]);
 
-            $totalAmount = 0;
 
-            foreach ($data['items'] as $itemData) {
-                $product = Product::where('product_code', $itemData['product_code'])->first();
-                if (!$product) {
-                    throw new ModelNotFoundException("Product with code {$itemData['product_code']} not found.");
+            foreach($data['items'] as $item){
+                $product = Product::where('product_code', $item['product_code'])->first();
+                if(!$product){
+                    throw new ModelNotFoundException("Product with product code {$item['product_code']} not found");
                 }
-
-                $itemPrice = $product->sales_rate;
-                $itemTotal = $itemPrice * $itemData['quantity'];
-                $totalAmount += $itemTotal;
-
+                $order->total_amount += $item['quantity'] * $product->sales_rate;
                 SalesOrderItem::create([
                     'sales_order_id' => $order->id,
-                    'product_code' => $product->product_code,
-                    'quantity' => $itemData['quantity'],
-                    'price' => $itemPrice
+                    'product_code' => $item['product_code'],
+                    'quantity' => $item['quantity'],
+                    'price' => $product->sales_rate,
                 ]);
             }
-
-            $order->total_amount = $totalAmount;
             $order->save();
-
-            return $order->load('items');
+            return $order;
         });
     }
 
-    /**
-     * Generate invoice for a Sales Order.
-     *
-     * @param int $salesOrderId
-     * @return SalesOrder
-     */
-    public function generateInvoice(int $salesOrderId): SalesOrder
+//======================================================================================================================
+//================  CHANGE ORDER STATUS AT ECOMMERCE SIDE  =============================================================
+//======================================================================================================================
+
+    public function notifyEcommerce(string $ecommerceOrderId, string $status)
     {
-        return DB::transaction(function () use ($salesOrderId) {
-            $order = SalesOrder::find($salesOrderId);
-            if (!$order) {
-                throw new ModelNotFoundException("Sales Order ID {$salesOrderId} not found.");
+        try {
+//            $ecommerceUrl = env('ECOMMERCE_API_URL', 'http://localhost:8080');
+            $response = Http::post(
+                "http://localhost:8080/api/orders/update-status/{$ecommerceOrderId}?status={$status}"
+            );
+            if ($response->status() == 404) {
+                Log::error(
+                    "Failed to update status in E-Commerce. Status code: "
+                    . $response->status() . " Response: " . $response->body()
+                );
+                throw new Exception($response->json('message'));
             }
-
-            if ($order->status !== 'pending') {
-                throw new Exception("Only pending orders can be invoiced. Current status: {$order->status}");
-            }
-
-            $invoiceNumber = 'INV-' . time() . rand(10, 99);
-
-            SalesInvoice::create([
-                'sales_order_id' => $order->id,
-                'invoice_number' => $invoiceNumber,
-                'amount' => $order->total_amount,
-                'status' => 'unpaid'
-            ]);
-
-            $order->status = 'invoiced';
-            $order->save();
-
-            return $order->load(['items', 'invoice']);
-        });
-    }
-
-    /**
-     * Process delivery for a Sales Order (updates stock).
-     *
-     * @param int $salesOrderId
-     * @param array $data
-     * @return SalesOrder
-     */
-    public function processDelivery(int $salesOrderId, array $data): SalesOrder
-    {
-        return DB::transaction(function () use ($salesOrderId, $data) {
-            $order = SalesOrder::find($salesOrderId);
-            if (!$order) {
-                throw new ModelNotFoundException("Sales Order ID {$salesOrderId} not found.");
-            }
-
-            if ($order->status !== 'invoiced') {
-                throw new Exception("Only invoiced orders can be delivered. Current status: {$order->status}");
-            }
-
-            // 1. Verify stock is available for all items in the order
-            $orderItems = $order->items;
-            foreach ($orderItems as $item) {
-                $product = Product::where('product_code', $item->product_code)->first();
-                if (!$product) {
-                    throw new ModelNotFoundException("Product with code {$item->product_code} not found.");
-                }
-
-                if ($product->total_strip < $item->quantity) {
-                    throw new Exception("Insufficient stock for product [{$product->name}] (Code: {$product->product_code}). Current stock: {$product->total_strip}, Requested: {$item->quantity}");
-                }
-            }
-
-            // 2. Deduct stock and record logs
-            foreach ($orderItems as $item) {
-                $this->stockService->updateStock($item->product_code, [
-                    'quantity' => $item->quantity,
-                    'type' => 'deduction',
-                    'description' => "Order fulfillment: {$order->ecommerce_order_id}"
-                ]);
-            }
-
-            // 3. Create Delivery record
-            $deliveryNumber = 'DEL-' . time() . rand(10, 99);
-            Delivery::create([
-                'sales_order_id' => $order->id,
-                'delivery_number' => $deliveryNumber,
-                'status' => 'delivered',
-                'tracking_number' => $data['tracking_number'] ?? null
-            ]);
-
-            // 4. Update Sales Order status
-            $order->status = 'delivered';
-            $order->save();
-
-            return $order->load(['items', 'invoice', 'delivery']);
-        });
-    }
-
-    /**
-     * Get details of a Sales Order.
-     *
-     * @param int $salesOrderId
-     * @return SalesOrder
-     */
-    public function getSalesOrderDetails(int $salesOrderId): SalesOrder
-    {
-        $order = SalesOrder::find($salesOrderId);
-        if (!$order) {
-            throw new ModelNotFoundException("Sales Order ID {$salesOrderId} not found.");
+        } catch (Exception $e) {
+            Log::error("Failed to notify E-Commerce system: " . $e->getMessage());
+            throw new Exception($e->getMessage());
         }
-
-        return $order->load(['items', 'invoice', 'delivery']);
     }
+
+//    public function getSalesOrderDetails(int $salesOrderId): SalesOrder
+//    {
+//        $order = SalesOrder::find($salesOrderId);
+//        if (!$order) {
+//            throw new ModelNotFoundException("Sales Order ID {$salesOrderId} not found.");
+//        }
+//
+//        return $order->load(['items']);
+//    }
 }
