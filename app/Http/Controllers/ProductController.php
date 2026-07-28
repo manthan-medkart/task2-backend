@@ -10,7 +10,7 @@ use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Services\ProductService;
 
-class ProductController extends Controller
+class ProductController extends ApiController
 {
     private ProductService $productService;
     public function __construct(
@@ -25,14 +25,12 @@ class ProductController extends Controller
 //======================================================================================================================
 
     public function createProduct(ProductCreateRequest $request){
-
-         $this->productService->createProduct($request->validated());
-
-        return ApiResponse::success(
-            'Product created successfully',
-            200,
-            null
-        );
+        try{
+            $this->productService->createProduct($request->validated());
+            return $this->resp('Product created', 201, null);
+        }catch (\Exception $exception){
+            return $this->resp('Product not created', 500, 'Internal Server Error');
+        }
     }
 
 
@@ -42,12 +40,12 @@ class ProductController extends Controller
 
     public function updatePartialProduct(int $id, ProductPartialUpdateRequest $request)
     {
-        $product = $this->productService->updatePartialProduct($id, $request->validated());
-        return ApiResponse::success(
-            'Product updated successfully',
-            200,
-            new ProductResource($product)
-        );
+        try{
+            $product = $this->productService->updatePartialProduct($id, $request->validated());
+            return $this->resp('Product updated', 200, new ProductResource($product));
+        }catch (\Exception $exception){
+            return $this->resp('Product not updated', 500, 'Internal Server Error');
+        }
     }
 
 
@@ -56,12 +54,13 @@ class ProductController extends Controller
 //======================================================================================================================
 
     public function updateProduct(int $id, ProductUpdateRequest $request){
-        $product = $this->productService->updateProduct($id, $request->validated());
-        return ApiResponse::success(
-            'Product updated successfully',
-            200,
-            new ProductResource($product)
-        );
+        try{
+            $product = $this->productService->updateProduct($id, $request->validated());
+            return $this->resp('Product updated', 200, new ProductResource($product));
+        }
+        catch (\Exception $exception){
+            return $this->resp('Product not updated', 500, 'Internal Server Error');
+        }
     }
 
 
@@ -71,16 +70,13 @@ class ProductController extends Controller
 
     public function getAllProducts()
     {
-        $products = $this->productService->getAllProducts();
-//        foreach($products as $product){
-//            echo $product->id . '<br>';
-//        }
-
-        return ApiResponse::success(
-            'Products retrieved successfully',
-            200,
-            new ProductResource($products)
-        );
+        try{
+            $products = $this->productService->getAllProducts();
+            return $this->resp('All products', 200, new ProductResource($products));
+        }
+        catch(\Exception $e){
+            return $this->resp('Products not found', 404, "Failed to retrieve products");
+        }
     }
 
 
@@ -90,13 +86,13 @@ class ProductController extends Controller
 
     public function getProduct(int $id)
     {
-        $product = $this->productService->getProduct($id);
-
-        return ApiResponse::success(
-            'Product retrieved successfully',
-            200,
-            new ProductResource($product)
-        );
+        try{
+            $product = $this->productService->getProduct($id);
+            return $this->resp('Product found', 200 , new ProductResource($product));
+        }
+        catch(\Exception $e){
+            return $this->resp('Product not found', 404 , 'Failed to retrieve product');
+        }
     }
 
 //======================================================================================================================
@@ -108,19 +104,10 @@ class ProductController extends Controller
     {
         try{
             $this->productService->publishProduct($request->validated());
-
-            return ApiResponse::success(
-                'Product published successfully',
-                200,
-                null
-            );
+            return $this->resp('Product published', 200, null);
         }
         catch (\Exception $exception){
-            return ApiResponse::error(
-                'Product published unsuccessfully',
-                400,
-                $exception->getMessage()
-            );
+            return $this->resp('Product not published', 500, 'Internal Server Error');
         }
 
 

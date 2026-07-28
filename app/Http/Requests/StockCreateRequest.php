@@ -21,6 +21,8 @@ class StockCreateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $routeName = $this->route()->getName();
+
         return [
             'product_code' => [
                 'required',

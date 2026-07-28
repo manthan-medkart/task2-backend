@@ -172,7 +172,9 @@ class StockManagementService
     public function createStockOfNewProduct(array $data) : Stock{
         return DB::transaction(function () use ($data){
             $productCode = Stock::where('product_code', $data['product_code'])->first();
-            if($productCode){throw new ModelNotFoundException("Already Stock exists for Product Code $data[product_code]");}
+            if($productCode){
+                throw new \Exception("Already Stock exists for Product Code $data[product_code]",400);
+            }
             return Stock::create([
                 'product_code' => $data['product_code'],
                 'quantity' => $data['quantity'],

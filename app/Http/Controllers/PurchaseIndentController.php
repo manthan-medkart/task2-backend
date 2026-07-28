@@ -11,7 +11,7 @@ use App\Http\Resources\PurchaseOrderResource;
 use App\Http\Services\PurchaseIndentService;
 use Exception;
 
-class PurchaseIndentController extends Controller
+class PurchaseIndentController extends ApiController
 {
     private PurchaseIndentService $purchaseIndentService;
 
@@ -29,18 +29,9 @@ class PurchaseIndentController extends Controller
     {
         try {
             $indents = $this->purchaseIndentService->getAllPurchaseIndents();
-
-            return ApiResponse::success(
-                'Purchase Indents retrieved successfully',
-                200,
-                new PurchaseIndentResource($indents)
-            );
+            return $this->resp('All purchase indents', 200, new PurchaseIndentResource($indents));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to retrieve Purchase Indents',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failure', 404, 'Failed to get all purchase indents');
         }
     }
 
@@ -54,47 +45,38 @@ class PurchaseIndentController extends Controller
             $purchaseIndent = $this->purchaseIndentService->createPurchaseIndent(
                 $request->validated()['sales_indent_ids']
             );
-
-            return ApiResponse::success(
-                'Purchase Indent created successfully',
-                200,
-                new PurchaseIndentResource($purchaseIndent)
-            );
+            return $this->resp('Purchase indent created', 200, new PurchaseIndentResource($purchaseIndent));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to create Purchase Indent',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failure', 404, 'Failed to create purchase indent');
         }
     }
 
 
-    /**
-     * Download PDF for a purchase indent.
-     * Currently returns the data — add your PDF generation logic in the service.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function downloadPdf(int $id)
-    {
-        try {
-            $purchaseIndent = $this->purchaseIndentService->downloadPdf($id);
-
-            // TODO: When you add PDF generation, return a file download response instead.
-            // For now, return the data that would be used for the PDF.
-            return ApiResponse::success(
-                'Purchase Indent data for PDF (PDF generation not yet implemented)',
-                200,
-                new PurchaseIndentResource($purchaseIndent)
-            );
-        } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to generate PDF',
-                400,
-                $e->getMessage()
-            );
-        }
-    }
+//    /**
+//     * Download PDF for a purchase indent.
+//     * Currently returns the data — add your PDF generation logic in the service.
+//     *
+//     * @param int $id
+//     * @return \Illuminate\Http\JsonResponse
+//     */
+//    public function downloadPdf(int $id)
+//    {
+//        try {
+//            $purchaseIndent = $this->purchaseIndentService->downloadPdf($id);
+//
+//            // TODO: When you add PDF generation, return a file download response instead.
+//            // For now, return the data that would be used for the PDF.
+//            return ApiResponse::success(
+//                'Purchase Indent data for PDF (PDF generation not yet implemented)',
+//                200,
+//                new PurchaseIndentResource($purchaseIndent)
+//            );
+//        } catch (Exception $e) {
+//            return ApiResponse::error(
+//                'Failed to generate PDF',
+//                400,
+//                $e->getMessage()
+//            );
+//        }
+//    }
 }

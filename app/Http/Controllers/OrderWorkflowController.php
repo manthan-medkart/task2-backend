@@ -10,7 +10,7 @@ use App\Http\Resources\SalesOrderResource;
 use App\Http\Services\OrderWorkflowService;
 use Exception;
 
-class OrderWorkflowController extends Controller
+class OrderWorkflowController extends ApiController
 {
     private OrderWorkflowService $orderWorkflowService;
 
@@ -29,18 +29,9 @@ class OrderWorkflowController extends Controller
     {
         try {
             $order = $this->orderWorkflowService->createSalesOrder($request->validated());
-
-            return ApiResponse::success(
-                'Sales Order created successfully',
-                200,
-                null
-            );
+            return $this->resp('Sales Order created', 201, $order);
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to create Sales Order',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Sales Order not created', 500, 'Internal Server Error');
         }
     }
 }
