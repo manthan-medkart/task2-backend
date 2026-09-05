@@ -13,6 +13,7 @@ use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponse;
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
@@ -33,47 +34,27 @@ class Handler extends ExceptionHandler
             //
         });
     }
+    public function response($data, $statusCode){
+        return response()->json($data, $statusCode);
+    }
+
     public function render($request, Throwable $e)
     {
         if($e instanceof ValidationException){
-            return ApiResponse::error(
-                'Validation Error',
-                422,
-                $e->errors(),
-            );
+            return $this->error('Validation failed', 422, $e->getMessage());
         }
         if($e instanceof AuthorizationException){
-            return ApiResponse::error(
-                'Authorization Error',
-                403,
-                $e->getMessage(),
-            );
+            return $this->error('Authorization Failed', 403, $e->getMessage());
         }
         if($e instanceof AuthenticationException){
-            return ApiResponse::error(
-                'Authentication Error',
-                401,
-                $e->getMessage(),
-            );
+            return $this->error('Authentication Error', 403, $e->getMessage());
         }
         if($e instanceof ModelNotFoundException){
-            return ApiResponse::error(
-                $e->getMessage(),
-                404,
-                $e->getMessage(),
-            );
+            return $this->error($e->getMessage(), 404, $e->getMessage());
         }
         if($e instanceof NotFoundHttpException){
-            return ApiResponse::error(
-                'Route Not Found',
-                404,
-                $e->getMessage(),
-            );
+            return $this->error('Route Not Found', 404, $e->getMessage());
         }
-        return ApiResponse::error(
-            'Internal Server Error',
-            500,
-            $e->getMessage(),
-        );
+        return $this->error('Internal Server Error', 500, $e->getMessage());
     }
 }

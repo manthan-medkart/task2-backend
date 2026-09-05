@@ -11,7 +11,7 @@ use App\Helpers\ApiResponse;
 use App\Http\Requests\StockUpdateRequest;
 use Exception;
 
-class StockController extends Controller
+class StockController extends ApiController
 {
     private StockManagementService $stockManagementService;
 
@@ -27,18 +27,10 @@ class StockController extends Controller
     public function createStockOfNewProduct(StockCreateRequest $request) {
         try{
             $stock = $this->stockManagementService->createStockOfNewProduct($request->validated());
-            return ApiResponse::success(
-                'Stock created successfully',
-                200,
-                new StockResource($stock)
-            );
+            return $this->resp('Stock created', 200 , new StockResource($stock));
         }
         catch (Exception $e){
-            return ApiResponse::error(
-                'Could not create stock of new product',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Stock not found', 500,$e->getMessage());
         }
 
 
@@ -52,18 +44,9 @@ class StockController extends Controller
     {
         try {
             $stock = $this->stockManagementService->adjustStock($request->validated());
-
-            return ApiResponse::success(
-                'Stock updated successfully',
-                200,
-                new StockResource($stock)
-            );
+            return $this->resp('Stock adjusted', 200 , new StockResource($stock));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Stock update failed',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Stock not adjusted', 400 ,$e->getMessage());
         }
     }
 
@@ -74,20 +57,12 @@ class StockController extends Controller
     public function getStockByProductCode(int $productCode)
     {
         try {
+
             $stock = $this->stockManagementService->getStockByProductCode($productCode);
+            return $this->resp('Stock Found', 200, new StockResource($stock));
 
-            return ApiResponse::success(
-                'Stock quantity retrieved successfully',
-                200,
-                new StockResource($stock)
-
-            );
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Failed to retrieve stock quantity by product code $productCode",
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Stock not found', 400, $e->getMessage());
         }
     }
 
@@ -98,19 +73,11 @@ class StockController extends Controller
     public function getStockOfAllProducts() {
         try{
             $stockOfAllProducts = $this->stockManagementService->getStockOfAllProducts();
-            return ApiResponse::success(
-                'Stock of All Products retrieved successfully',
-                200,
-                new StockResource($stockOfAllProducts)
-            );
+            return $this->resp('Stock Found', 200 , new StockResource($stockOfAllProducts));
         }
         catch (Exception $e) {
-            return ApiResponse::error(
-                'Stock of All Products not found',
-                400,
-                new StockResource($stockOfAllProducts)
-            );
-                }
+            return $this->resp('Stock not found', 400, $e->getMessage());
+        }
     }
 
 
@@ -131,18 +98,10 @@ class StockController extends Controller
             }
             $stock = $this->stockManagementService->deductStockByProductCode($movementDetails, $request->validated());
 
-            return ApiResponse::success(
-                'Stock deducted successfully',
-                200,
-                new StockResource($stock)
-            );
+            return $this->resp('Stock deducted', 200 , new StockResource($stock));
         }
         catch (Exception $e) {
-            return ApiResponse::error(
-                'Stock deducted failed',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Stock not found', 400, $e->getMessage());
         }
 
 
@@ -165,18 +124,10 @@ class StockController extends Controller
             }
             $stock = $this->stockManagementService->addStockByProductCode($movementDetails, $request->validated());
 
-            return ApiResponse::success(
-                'Stock Added successfully',
-                200,
-                new StockResource($stock)
-            );
+            return $this->resp('Stock added', 200 , new StockResource($stock));
         }
         catch (Exception $e) {
-            return ApiResponse::error(
-                'Stock added failed',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Stock not found', 400, $e->getMessage());
         }
     }
 

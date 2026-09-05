@@ -37,8 +37,8 @@ class SalesOrderService
     public function getAllSalesOrders(): Collection
     {
 
-        $salesOrder = SalesOrder::all()->sortByDesc('created_at');
-        $salesOrder->load('items.product');
+        $salesOrder = SalesOrder::with('items.product')->orderBy('created_at', 'desc')->get();
+//        dd($salesOrder->toArray());
         return $salesOrder;
     }
 

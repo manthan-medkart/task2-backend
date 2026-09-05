@@ -9,7 +9,7 @@ use App\Http\Resources\PurchaseOrderResource;
 use App\Http\Services\PurchaseOrderService;
 use Exception;
 
-class PurchaseOrderController extends Controller
+class PurchaseOrderController extends ApiController
 {
     private PurchaseOrderService $purchaseOrderService;
 
@@ -27,18 +27,9 @@ class PurchaseOrderController extends Controller
     {
         try {
             $orders = $this->purchaseOrderService->getAllPurchaseOrders();
-
-            return ApiResponse::success(
-                'Purchase Orders retrieved successfully',
-                200,
-                new PurchaseOrderResource($orders)
-            );
+            return $this->resp('Purchase Orders found', 200 , new PurchaseOrderResource($orders));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to retrieve Purchase Orders',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to retrieve Purchase Orders', 500, $e->getMessage());
         }
     }
 
@@ -50,18 +41,9 @@ class PurchaseOrderController extends Controller
     {
         try {
             $purchaseOrder = $this->purchaseOrderService->createPurchaseOrder($id);
-
-            return ApiResponse::success(
-                'Purchase Order created successfully',
-                200,
-                new PurchaseOrderResource($purchaseOrder)
-            );
+            return $this->resp('PurchaseOrder created', 200 , new PurchaseOrderResource($purchaseOrder));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to create Purchase Order',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to create PurchaseOrder', 500, $e->getMessage());
         }
     }
 
@@ -74,18 +56,9 @@ class PurchaseOrderController extends Controller
     {
         try {
             $order = $this->purchaseOrderService->markPoSent($id);
-
-            return ApiResponse::success(
-                'Purchase Order marked as sent to vendor',
-                200,
-                new PurchaseOrderResource($order)
-            );
+            return $this->resp('Purchase Order marked sent', 200 , new PurchaseOrderResource($order));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to mark Purchase Order as sent',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to mark Purchase Order', 400, $e->getMessage());
         }
     }
 
@@ -98,18 +71,9 @@ class PurchaseOrderController extends Controller
     {
         try {
             $order = $this->purchaseOrderService->markPoProcured($id);
-
-            return ApiResponse::success(
-                'Purchase Order procured. Stock updated and order delivered.',
-                200,
-                new PurchaseOrderResource($order)
-            );
+            return $this->resp('Purchase Order marked procured', 200 , new PurchaseOrderResource($order));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to mark Purchase Order as procured',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to mark Purchase Order', 400, $e->getMessage());
         }
     }
 }

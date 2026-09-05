@@ -10,7 +10,7 @@ class SalesOrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         $items = [];
-        foreach ($this->items as $item) {
+        foreach ($this->resource->items as $item) {
             $items[] = [
                 'id' => (int) $item->id,
                 'productCode' => (int) $item->product_code,

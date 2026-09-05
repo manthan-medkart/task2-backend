@@ -12,7 +12,7 @@ use App\Http\Resources\PurchaseIndentResource;
 use App\Http\Services\SalesIndentService;
 use Exception;
 
-class SalesIndentController extends Controller
+class SalesIndentController extends ApiController
 {
     private SalesIndentService $salesIndentService;
 
@@ -31,17 +31,9 @@ class SalesIndentController extends Controller
         try {
             $indents = $this->salesIndentService->getAllSalesIndents();
 
-            return ApiResponse::success(
-                'Sales Indents retrieved successfully',
-                200,
-                SalesIndentResource::collection($indents)
-            );
+            return $this->resp('Sales Indents found', 200 , SalesIndentResource::collection($indents));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to retrieve Sales Indents',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to get all Sales Indents', 400, $e->getMessage());
         }
     }
 }

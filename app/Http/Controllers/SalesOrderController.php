@@ -12,7 +12,7 @@ use App\Http\Services\SalesOrderService;
 use Exception;
 use Spatie\FlareClient\Api;
 
-class SalesOrderController extends Controller
+class SalesOrderController extends ApiController
 {
     private SalesOrderService $salesOrderService;
 
@@ -40,18 +40,10 @@ class SalesOrderController extends Controller
     public function getSalesOrderDetails(int $salesOrderId){
         try{
             $salesOrder = $this->salesOrderService->getSalesOrderDetails($salesOrderId);
-            return ApiResponse::success(
-                'Successfully get sales order details',
-                200,
-                new SalesOrderResource($salesOrder)
-            );
+            return $this->resp('Successfully get sales order details', 200 , new SalesOrderResource($salesOrder));
         }
         catch (Exception $e){
-            return ApiResponse::error(
-                'Failed get sales order details',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed get sales order details', 400 , $e->getMessage());
         }
     }
 
@@ -63,18 +55,9 @@ class SalesOrderController extends Controller
     {
         try {
             $orders = $this->salesOrderService->getAllSalesOrders();
-
-            return ApiResponse::success(
-                'Sales Orders retrieved successfully',
-                200,
-                SalesOrderResource::collection($orders)
-            );
+            return $this->resp('Successfully get sales orders', 200 , SalesOrderResource::collection($orders));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to retrieve Sales Orders',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed get sales orders', 400 , $e->getMessage());
         }
     }
 
@@ -90,18 +73,9 @@ class SalesOrderController extends Controller
             $message = $order->status === 'ACCEPTED'
                 ? 'Order accepted successfully. Stock is available.'
                 : 'Order is checking availability. Sales indent created for unavailable items.';
-
-            return ApiResponse::success(
-                $message,
-                200,
-                new SalesOrderResource($order)
-            );
+            return $this->resp($message, 200 , new SalesOrderResource($order));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to accept Sales Order',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed get sales orders', 400 , $e->getMessage());
         }
     }
 
@@ -113,18 +87,9 @@ class SalesOrderController extends Controller
     {
         try {
             $order = $this->salesOrderService->cancelSalesOrder($id);
-
-            return ApiResponse::success(
-                'Order cancelled successfully. Stock restored.',
-                200,
-                new SalesOrderResource($order)
-            );
+            return $this->resp('Order cancelled successfully', 200 , new SalesOrderResource($order));
         } catch (Exception $e) {
-            return ApiResponse::error(
-                'Failed to cancel Sales Order',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to cancel sales orders', 400 , $e->getMessage());
         }
     }
 
@@ -135,17 +100,9 @@ class SalesOrderController extends Controller
     public function canOrderPlace(int $id){
         try{
             $this->salesOrderService->canOrderPlace($id);
-            return ApiResponse::success(
-                'Order placed successfully. ',
-                200,
-                null
-            );
+            return $this->resp('Order places successfully', 200 , null);
         }catch (Exception $e){
-            return ApiResponse::error(
-                'Cannot order place',
-                400,
-                $e->getMessage()
-            );
+            return $this->resp('Failed to place order', 400 , $e->getMessage());
         }
 
     }
